@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'locale',
     ];
 
     /**
@@ -44,5 +45,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function connectedAccounts()
+    {
+        return $this->hasMany(ConnectedAccount::class);
+    }
+
+    public function widgets()
+    {
+        return $this->hasMany(Widget::class);
+    }
+
+    public function ownedGroups()
+    {
+        return $this->hasMany(Group::class, 'owner_id');
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DebugController;
 
 // Debug route
@@ -21,6 +22,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('home');
     })->name('home');
+    
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // Authentication Routes

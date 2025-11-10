@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +27,8 @@ class AppServiceProvider extends ServiceProvider
         if (request()->is('install*')) {
             config(['session.driver' => 'file']);
         }
+
+        // Livewireコンポーネントを登録
+        Livewire::component('dashboard', \App\Http\Livewire\Dashboard::class);
     }
 }
