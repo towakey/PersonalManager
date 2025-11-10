@@ -7,6 +7,17 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DebugController;
 
+// Livewire routes
+Route::middleware('web')->group(function () {
+    \Livewire\Livewire::setUpdateRoute(function ($handle) {
+        return Route::post('/livewire/update', $handle);
+    });
+    
+    \Livewire\Livewire::setScriptRoute(function ($handle) {
+        return Route::get('/livewire/livewire.js', $handle);
+    });
+});
+
 // Debug route
 Route::post('/debug/check-password', [DebugController::class, 'checkPassword']);
 
