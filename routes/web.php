@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GitHubController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DebugController;
 
 // Livewire routes
@@ -35,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
     })->name('home');
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::post('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/accounts', [SettingsController::class, 'updateAccounts'])->name('settings.accounts.update');
+    Route::post('/settings/sharing', [SettingsController::class, 'updateSharing'])->name('settings.sharing.update');
+    Route::post('/settings/servers', [SettingsController::class, 'updateServers'])->name('settings.servers.update');
 });
 
 // Authentication Routes
@@ -55,3 +65,20 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+
+// OAuth Authentication Routes
+Route::get('/auth/github', [GitHubController::class, 'redirect'])
+    ->middleware('auth')
+    ->name('auth.github');
+
+Route::get('/auth/github/callback', [GitHubController::class, 'callback'])
+    ->middleware('auth')
+    ->name('auth.github.callback');
+
+Route::get('/auth/google', [GoogleController::class, 'redirect'])
+    ->middleware('auth')
+    ->name('auth.google');
+
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
+    ->middleware('auth')
+    ->name('auth.google.callback');

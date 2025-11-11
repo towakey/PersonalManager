@@ -42,7 +42,7 @@ class GoogleController extends Controller
                 'service' => 'google',
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('settings')
                 ->with('success', __('Google account connected successfully!'));
 
         } catch (\Exception $e) {
@@ -51,7 +51,7 @@ class GoogleController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('settings')
                 ->with('error', __('Failed to connect Google account: :message', ['message' => $e->getMessage()]));
         }
     }

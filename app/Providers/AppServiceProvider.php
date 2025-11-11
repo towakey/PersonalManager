@@ -30,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Livewireコンポーネントを登録
         Livewire::component('dashboard', \App\Http\Livewire\Dashboard::class);
+        Livewire::component('settings', \App\Http\Livewire\Settings::class);
     }
 }

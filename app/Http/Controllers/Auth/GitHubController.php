@@ -42,7 +42,7 @@ class GitHubController extends Controller
                 'service' => 'github',
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('settings')
                 ->with('success', __('GitHub account connected successfully!'));
 
         } catch (\Exception $e) {
@@ -51,7 +51,7 @@ class GitHubController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect()->route('settings')
                 ->with('error', __('Failed to connect GitHub account: :message', ['message' => $e->getMessage()]));
         }
     }
