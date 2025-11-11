@@ -34,7 +34,7 @@ Route::get('/install/complete', [InstallController::class, 'complete']);
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
-        return view('home');
+        return redirect()->route('dashboard');
     })->name('home');
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
