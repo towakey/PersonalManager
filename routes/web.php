@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DebugController;
+use App\Http\Controllers\DebugTestController;
 
 // Livewire routes
 Route::middleware('web')->group(function () {
@@ -23,6 +24,10 @@ Route::middleware('web')->group(function () {
 
 // Debug route
 Route::post('/debug/check-password', [DebugController::class, 'checkPassword']);
+
+// Debug test routes
+Route::get('/debug/test', [DebugTestController::class, 'test']);
+Route::post('/debug/clean', [DebugTestController::class, 'clean']);
 
 // Installer routes
 Route::group(['prefix' => 'install', 'middleware' => ['installed']], function () {

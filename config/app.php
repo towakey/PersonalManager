@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Debug Mode
+    |--------------------------------------------------------------------------
+    |
+    | When your application is in debug mode, detailed debug logs will be
+    | written to the storage/debug directory. This is useful for development
+    | and troubleshooting. Set this to true in your .env file to enable.
+    |
+    */
+
+    'debug_mode' => (bool) env('APP_DEBUG_MODE', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
