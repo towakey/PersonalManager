@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'installed' => \App\Http\Middleware\CheckIfInstalled::class,
+            'livewire.baseurl' => \App\Http\Middleware\SetLivewireBaseUrl::class,
+        ]);
+        
+        // Livewireルートにミドルウェアを適用
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLivewireBaseUrl::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

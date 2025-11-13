@@ -3,6 +3,18 @@
 return [
 
     /*
+    |--------------------------------------------------------------------------
+    | Base URL
+    |--------------------------------------------------------------------------
+    |
+    | This value sets the base URL for Livewire component requests. This is
+    | useful when your application is running in a subdirectory.
+    |
+    */
+
+    'base_url' => env('APP_URL', 'http://localhost'),
+
+    /*
     |---------------------------------------------------------------------------
     | Class Namespace
     |---------------------------------------------------------------------------

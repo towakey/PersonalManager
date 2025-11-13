@@ -69,6 +69,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Asset URL
+    |--------------------------------------------------------------------------
+    |
+    | The asset URL is used by the framework to generate asset URLs. You may
+    | set this to the root of your asset directory to ensure that all assets
+    | are served from the correct location when your application is in a
+    | subdirectory.
+    |
+    */
+
+    'asset_url' => env('ASSET_URL'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

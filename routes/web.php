@@ -11,14 +11,14 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\DebugTestController;
 
-// Livewire routes
+// Livewire routes - 優先順位を高くするために最初に配置
 Route::middleware('web')->group(function () {
     \Livewire\Livewire::setUpdateRoute(function ($handle) {
-        return Route::post('/livewire/update', $handle);
+        return Route::post('/PersonalManager/livewire/update', $handle)->name('livewire.app.update');
     });
     
     \Livewire\Livewire::setScriptRoute(function ($handle) {
-        return Route::get('/livewire/livewire.js', $handle);
+        return Route::get('/PersonalManager/livewire/livewire.js', $handle)->name('livewire.app.script');
     });
 });
 
