@@ -64,4 +64,11 @@ return [
         ],
     ],
 
+    'twitter' => [
+        'client_id' => env('TWITTER_CLIENT_ID'),
+        'client_secret' => env('TWITTER_CLIENT_SECRET'),
+        'redirect' => env('APP_URL') . '/auth/twitter/callback',
+        'scopes' => ['tweet.read', 'users.read', 'offline.access'],
+    ],
+
 ];

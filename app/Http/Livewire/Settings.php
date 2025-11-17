@@ -103,6 +103,13 @@ class Settings extends Component
                 'connected' => $this->isServiceConnected('google'),
                 'auth_url' => route('auth.google'),
             ],
+            [
+                'id' => 'twitter',
+                'name' => __('services.twitter.name'),
+                'description' => __('services.twitter.description'),
+                'connected' => $this->isServiceConnected('twitter'),
+                'auth_url' => route('auth.twitter'),
+            ],
         ];
     }
 

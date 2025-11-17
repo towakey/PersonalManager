@@ -26,7 +26,12 @@ class GoogleController extends Controller
             return redirect()->route('login');
         }
 
-        return $this->googleService->getAuthRedirect();
+        try {
+            return $this->googleService->getAuthRedirect();
+        } catch (\Exception $e) {
+            return redirect()->route('plugins')
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**

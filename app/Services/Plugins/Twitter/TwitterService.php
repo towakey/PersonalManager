@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Plugins\Google;
+namespace App\Services\Plugins\Twitter;
 
 use App\Services\Plugins\Contracts\ServicePluginInterface;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\ConnectedAccount;
 use Exception;
 
-class GoogleService implements ServicePluginInterface
+class TwitterService implements ServicePluginInterface
 {
     private ?string $clientId;
     private ?string $clientSecret;
@@ -19,9 +19,9 @@ class GoogleService implements ServicePluginInterface
 
     public function __construct()
     {
-        $this->clientId = config('services.google.client_id');
-        $this->clientSecret = config('services.google.client_secret');
-        $this->redirectUri = config('services.google.redirect');
+        $this->clientId = config('services.twitter.client_id');
+        $this->clientSecret = config('services.twitter.client_secret');
+        $this->redirectUri = config('services.twitter.redirect');
     }
 
     /**
@@ -29,7 +29,7 @@ class GoogleService implements ServicePluginInterface
      */
     public static function getIdentifier(): string
     {
-        return 'google';
+        return 'twitter';
     }
 
     /**
@@ -37,7 +37,7 @@ class GoogleService implements ServicePluginInterface
      */
     public static function getDisplayName(): string
     {
-        return 'plugins.google.name';
+        return 'plugins.twitter.name';
     }
 
     /**
@@ -45,7 +45,7 @@ class GoogleService implements ServicePluginInterface
      */
     public static function getDescription(): string
     {
-        return 'plugins.google.description';
+        return 'plugins.twitter.description';
     }
 
     /**
@@ -61,10 +61,7 @@ class GoogleService implements ServicePluginInterface
      */
     public static function getAvailableWidgets(): array
     {
-        return [
-            \App\Services\Plugins\Google\Widgets\Gmail::class,
-            \App\Services\Plugins\Google\Widgets\Calendar::class,
-        ];
+        return [];
     }
 
     /**
@@ -74,22 +71,32 @@ class GoogleService implements ServicePluginInterface
     {
         // 設定値が未設定の場合はエラー
         if (empty($this->clientId) || empty($this->clientSecret) || empty($this->redirectUri)) {
-            throw new Exception('Google OAuth credentials are not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file.');
+            throw new Exception('Twitter OAuth credentials are not configured. Please set TWITTER_CLIENT_ID and TWITTER_CLIENT_SECRET in your .env file.');
         }
 
         $state = Str::random(40);
-        session(['google_oauth_state' => $state]);
+        $codeVerifier = Str::random(128);
+        $codeChallenge = hash('sha256', $codeVerifier, true);
+        $codeChallenge = base64_encode($codeChallenge);
+        $codeChallenge = strtr($codeChallenge, '+/', '-_');
+        $codeChallenge = rtrim($codeChallenge, '=');
+
+        session([
+            'twitter_oauth_state' => $state,
+            'twitter_code_verifier' => $codeVerifier,
+        ]);
 
         $params = [
+            'response_type' => 'code',
             'client_id' => $this->clientId,
             'redirect_uri' => $this->redirectUri,
-            'scope' => 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly email',
-            'response_type' => 'code',
-            'access_type' => 'offline',
+            'scope' => 'tweet.read users.read offline.access',
             'state' => $state,
+            'code_challenge' => $codeChallenge,
+            'code_challenge_method' => 'S256',
         ];
 
-        $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
+        $url = 'https://twitter.com/i/oauth2/authorize?' . http_build_query($params);
 
         return redirect()->away($url);
     }
@@ -101,36 +108,44 @@ class GoogleService implements ServicePluginInterface
     {
         $state = $request->get('state');
         $code = $request->get('code');
+        $codeVerifier = session('twitter_code_verifier');
 
-        if (!$state || $state !== session('google_oauth_state')) {
+        if (!$state || $state !== session('twitter_oauth_state')) {
             throw new Exception('Invalid state parameter');
         }
 
+        if (!$codeVerifier) {
+            throw new Exception('Code verifier not found in session');
+        }
+
         // アクセストークンを取得
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+        $response = Http::asForm()->post('https://api.twitter.com/2/oauth2/token', [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'code' => $code,
             'redirect_uri' => $this->redirectUri,
             'grant_type' => 'authorization_code',
+            'code_verifier' => $codeVerifier,
         ]);
 
         $tokenData = $response->json();
 
         if (!isset($tokenData['access_token'])) {
-            throw new Exception('Failed to obtain access token');
+            throw new Exception('Failed to obtain access token: ' . ($tokenData['error_description'] ?? 'Unknown error'));
         }
 
         // ユーザー情報を取得
         $userResponse = Http::withHeaders([
             'Authorization' => 'Bearer ' . $tokenData['access_token'],
-        ])->get('https://www.googleapis.com/oauth2/v2/userinfo');
+        ])->get('https://api.twitter.com/2/users/me', [
+            'user.fields' => 'id,name,username,profile_image_url',
+        ]);
 
         if (!$userResponse->successful()) {
             throw new Exception('Failed to obtain user information');
         }
 
-        $googleUser = $userResponse->json();
+        $twitterUser = $userResponse->json();
 
         // 既存の接続を確認
         $existingAccount = ConnectedAccount::where('user_id', Auth::id())
@@ -188,9 +203,7 @@ class GoogleService implements ServicePluginInterface
                     throw new Exception('No refresh token available');
                 }
 
-                $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
+                $response = Http::asForm()->post('https://api.twitter.com/2/oauth2/token', [
                     'refresh_token' => $this->refreshToken,
                     'grant_type' => 'refresh_token',
                 ]);
@@ -205,7 +218,7 @@ class GoogleService implements ServicePluginInterface
                 
                 // Update the account with new token
                 $account = Auth::user()->connectedAccounts()
-                    ->where('service_name', 'google')
+                    ->where('service_name', 'twitter')
                     ->first();
                 
                 if ($account) {
@@ -236,42 +249,31 @@ class GoogleService implements ServicePluginInterface
                 return $response;
             }
 
-            public function getGmailMessages(array $params = [])
+            public function getUser()
             {
-                $defaultParams = [
-                    'maxResults' => 10,
-                    'q' => 'is:unread',
-                ];
-                $params = array_merge($defaultParams, $params);
-
-                $response = $this->makeRequest('GET', 'https://www.googleapis.com/gmail/v1/users/me/messages', [
-                    'query' => $params,
+                $response = $this->makeRequest('GET', 'https://api.twitter.com/2/users/me', [
+                    'query' => ['user.fields' => 'id,name,username,profile_image_url,created_at,description'],
                 ]);
 
                 return $response->json();
             }
 
-            public function getGmailMessage(string $messageId)
-            {
-                $response = $this->makeRequest('GET', "https://www.googleapis.com/gmail/v1/users/me/messages/{$messageId}", [
-                    'query' => ['format' => 'metadata', 'metadataHeaders' => ['Subject', 'From', 'Date']],
-                ]);
-
-                return $response->json();
-            }
-
-            public function getCalendarEvents(array $params = [])
+            public function getTweets(array $params = [])
             {
                 $defaultParams = [
-                    'timeMin' => now()->startOfDay()->format(\DateTime::ATOM),
-                    'timeMax' => now()->addDays(7)->endOfDay()->format(\DateTime::ATOM),
-                    'maxResults' => 10,
-                    'orderBy' => 'startTime',
-                    'singleEvents' => 'true',
+                    'max_results' => 10,
+                    'tweet_fields' => 'created_at,public_metrics',
                 ];
                 $params = array_merge($defaultParams, $params);
 
-                $response = $this->makeRequest('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events', [
+                $user = $this->getUser();
+                $userId = $user['data']['id'] ?? null;
+
+                if (!$userId) {
+                    throw new Exception('Unable to get user ID');
+                }
+
+                $response = $this->makeRequest('GET', "https://api.twitter.com/2/users/{$userId}/tweets", [
                     'query' => $params,
                 ]);
 

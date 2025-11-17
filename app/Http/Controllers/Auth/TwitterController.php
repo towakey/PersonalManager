@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Services\Plugins\GitHub\GitHubService;
+use App\Services\Plugins\Twitter\TwitterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class GitHubController extends Controller
+class TwitterController extends Controller
 {
-    private GitHubService $githubService;
+    private TwitterService $twitterService;
 
-    public function __construct(GitHubService $githubService)
+    public function __construct(TwitterService $twitterService)
     {
-        $this->githubService = $githubService;
+        $this->twitterService = $twitterService;
     }
 
     /**
-     * GitHub認証を開始
+     * Twitter認証を開始
      */
     public function redirect()
     {
@@ -27,7 +27,7 @@ class GitHubController extends Controller
         }
 
         try {
-            return $this->githubService->getAuthRedirect();
+            return $this->twitterService->getAuthRedirect();
         } catch (\Exception $e) {
             return redirect()->route('plugins')
                 ->with('error', $e->getMessage());
@@ -35,29 +35,29 @@ class GitHubController extends Controller
     }
 
     /**
-     * GitHub認証コールバック
+     * Twitter認証コールバック
      */
     public function callback(Request $request)
     {
         try {
-            $connectedAccount = $this->githubService->handleAuthCallback($request);
+            $connectedAccount = $this->twitterService->handleAuthCallback($request);
             
-            Log::info('GitHub account connected successfully', [
+            Log::info('Twitter account connected successfully', [
                 'user_id' => Auth::id(),
-                'service' => 'github',
+                'service' => 'twitter',
             ]);
 
             return redirect()->route('settings')
-                ->with('success', __('GitHub account connected successfully!'));
+                ->with('success', __('Twitter account connected successfully!'));
 
         } catch (\Exception $e) {
-            Log::error('GitHub authentication failed', [
+            Log::error('Twitter authentication failed', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
             ]);
 
             return redirect()->route('settings')
-                ->with('error', __('Failed to connect GitHub account: :message', ['message' => $e->getMessage()]));
+                ->with('error', __('Failed to connect Twitter account: :message', ['message' => $e->getMessage()]));
         }
     }
 }

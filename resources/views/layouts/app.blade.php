@@ -24,6 +24,9 @@
                         <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             {{ __('Dashboard') }}
                         </a>
+                        <a href="{{ route('plugins') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            {{ __('plugins.title') }}
+                        </a>
                         <a href="{{ route('settings') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             {{ __('Settings') }}
                         </a>

@@ -6,10 +6,13 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GitHubController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\TwitterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\PluginController;
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\DebugTestController;
+use App\Http\Controllers\AdminOauthSettingsController;
 
 // Livewire routes - 優先順位を高くするために最初に配置
 Route::middleware('web')->group(function () {
@@ -50,6 +53,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/settings/accounts', [SettingsController::class, 'updateAccounts'])->name('settings.accounts.update');
     Route::post('/settings/sharing', [SettingsController::class, 'updateSharing'])->name('settings.sharing.update');
     Route::post('/settings/servers', [SettingsController::class, 'updateServers'])->name('settings.servers.update');
+    
+    // Admin OAuth settings routes
+    Route::get('/admin/settings/oauth', [AdminOauthSettingsController::class, 'edit'])->name('admin.settings.oauth.edit');
+    Route::post('/admin/settings/oauth', [AdminOauthSettingsController::class, 'update'])->name('admin.settings.oauth.update');
+    
+    // Plugin management routes
+    Route::get('/plugins', [PluginController::class, 'index'])->name('plugins');
+    Route::post('/plugins/disconnect', [PluginController::class, 'disconnectService'])->name('plugins.disconnect');
+    Route::post('/plugins/toggle', [PluginController::class, 'togglePlugin'])->name('plugins.toggle');
 });
 
 // Authentication Routes
@@ -87,3 +99,11 @@ Route::get('/auth/google', [GoogleController::class, 'redirect'])
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
     ->middleware('auth')
     ->name('auth.google.callback');
+
+Route::get('/auth/twitter', [TwitterController::class, 'redirect'])
+    ->middleware('auth')
+    ->name('auth.twitter');
+
+Route::get('/auth/twitter/callback', [TwitterController::class, 'callback'])
+    ->middleware('auth')
+    ->name('auth.twitter.callback');

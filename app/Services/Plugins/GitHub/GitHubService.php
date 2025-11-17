@@ -7,20 +7,21 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\ConnectedAccount;
 use Exception;
 
 class GitHubService implements ServicePluginInterface
 {
-    private string $clientId;
-    private string $clientSecret;
-    private string $redirectUri;
+    private ?string $clientId;
+    private ?string $clientSecret;
+    private ?string $redirectUri;
 
     public function __construct()
     {
         $this->clientId = config('services.github.client_id');
         $this->clientSecret = config('services.github.client_secret');
-        $this->redirectUri = config('services.github.redirect_uri');
+        $this->redirectUri = config('services.github.redirect');
     }
 
     /**
@@ -71,7 +72,12 @@ class GitHubService implements ServicePluginInterface
      */
     public function getAuthRedirect(): RedirectResponse
     {
-        $state = str_random(40);
+        // 設定値が未設定の場合はエラー
+        if (empty($this->clientId) || empty($this->clientSecret) || empty($this->redirectUri)) {
+            throw new Exception('GitHub OAuth credentials are not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in your .env file.');
+        }
+
+        $state = Str::random(40);
         session(['github_oauth_state' => $state]);
 
         $params = [

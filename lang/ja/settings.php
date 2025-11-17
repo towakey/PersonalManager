@@ -87,4 +87,11 @@ return [
         'rejected' => 'サーバー連携を拒否しました',
         'error' => 'サーバー連携の処理に失敗しました',
     ],
+
+    'oauth' => [
+        'title' => 'OAuthサービス設定',
+        'description' => 'GitHubとGoogleのOAuthクライアント設定を管理',
+        'updated' => 'OAuth設定を更新しました',
+        'save' => 'OAuth設定を保存',
+    ],
 ];

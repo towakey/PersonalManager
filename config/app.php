@@ -189,6 +189,7 @@ return [
          */
         // App\Services\Plugins\GitHub\GitHubServiceProvider::class,
         // App\Services\Plugins\Google\GoogleServiceProvider::class,
+        App\Services\Plugins\Twitter\TwitterServiceProvider::class,
 
     ],
 

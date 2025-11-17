@@ -87,4 +87,11 @@ return [
         'rejected' => 'Server connection rejected successfully',
         'error' => 'Failed to process server connection',
     ],
+
+    'oauth' => [
+        'title' => 'OAuth Service Settings',
+        'description' => 'Manage OAuth client settings for GitHub and Google',
+        'updated' => 'OAuth settings updated successfully',
+        'save' => 'Save OAuth Settings',
+    ],
 ];
